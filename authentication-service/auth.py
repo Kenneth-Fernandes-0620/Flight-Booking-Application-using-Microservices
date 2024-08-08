@@ -33,10 +33,49 @@ def create_item():
         return jsonify({"id": -1, "error": e.args[0]}), 500
 
 
-@app.route("/login", methods=["GET"])
-def get_item():
-    pass
+@app.route("/login", methods=["POST"])
+def login_user():
+    data = request.json
+    if "username" not in data or "password" not in data:
+        return jsonify({"message": "Invalid data"}), 400
+    
+    try:
+        user = db.find_one({"username": data["username"], "password": data["password"]})
+        if user:
+            return jsonify({"id": str(user["_id"]), "name": user["username"]}), 200
+        else:
+            return jsonify({"message": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"id": -1, "error": e.args[0]}), 500
 
+@app.route("/isadmin", methods=["GET"])
+def is_admin():
+    data = request.json
+    if "username" not in data:
+        return jsonify({"message": "Invalid data"}), 400
+    
+    try:
+        user = db.find_one({"username": data["username"]})
+        if user:
+            return jsonify({"isAdmin": user["isAdmin"]}), 200
+        else:
+            return jsonify({"message": "User not found"}), 404
+    except Exception as e:
+        return jsonify({"id": -1, "error": e.args[0]}), 500
+
+
+@app.route("/addadmin", methods=["POST"])
+def add_admin():
+    data = request.json
+    if "username" not in data:
+        return jsonify({"message": "Invalid data"}), 400
+
+    try:
+        result = db.update_one({"username": data["username"]}, {"$set": {"isAdmin": True}})
+        return jsonify({"id": str(result.inserted_id), "name": data["username"]}), 200
+    except Exception as e:
+        return jsonify({"id": -1, "error": e.args[0]}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,port=5000)
+    mongo.db.services.insert_one({"service_name": "auth", "port" : "5000"})
