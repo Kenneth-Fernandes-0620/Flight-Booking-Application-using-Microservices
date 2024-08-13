@@ -28,17 +28,17 @@ app.config["MONGO_URI"] = (
 mongo = PyMongo(app)
 db = mongo.db.flights
 
-START_PORT = 5001
 SERVICE_NAME = "listingservice"
+start_port = 5001
 
 
-@app.route("/")
+@app.route(f"/{SERVICE_NAME}/")
 def home():
     return jsonify({"status": "ok"}), 200
 
 # This function will be invoked by Vendors/Admin
 # This function adds new flights to the database
-@app.route("/addflight", methods=["POST"])
+@app.route(f"/{SERVICE_NAME}/addflight", methods=["POST"])
 def add_flight():
     data = request.json
     if (
@@ -80,10 +80,9 @@ def add_flight():
     except Exception as e:
         return jsonify({"id": -1, "error": e.args[0]}), 500
 
-
 # This function will be invoked by the front end trying to get the available flights
 # here require the booking ID of the flight as this binds the flight booking to the flight details
-@app.route("/getbookings", methods=["GET"])
+@app.route(f"/{SERVICE_NAME}/getbookings", methods=["GET"])
 def show_booking():
     try:
         source = request.args.get("source")
@@ -128,7 +127,7 @@ def unregister_service():
     try:
         res = requests.post(
             "http://localhost:5000/unregister",
-            json={"port": START_PORT, "servicename": SERVICE_NAME},
+            json={"port": start_port, "servicename": SERVICE_NAME},
         )
         if res.status_code == 200:
             print("Service unregistered successfully")
@@ -142,11 +141,10 @@ def register_service():
     try:
         res = requests.post(
             "http://localhost:5000/register",
-            json={"port": START_PORT, "servicename": SERVICE_NAME},
+            json={"port": start_port, "servicename": SERVICE_NAME},
         )
         if res.status_code == 200:
             print("Service registered successfully")
-            WAS_REGISTERED = True
         else:
             raise Exception("Error registering service, is discovery service running?")
     except requests.exceptions.ConnectionError:
@@ -158,13 +156,14 @@ def register_service():
 
 def signal_handler(signal, frame):
     print("\nGracefully shutting down...")
+    print(start_port)
     # Perform any cleanup here
     unregister_service()
     sys.exit(0)
 
 
-if __name__ == "__main__":
-    try:
+if __name__ == "__main__":    
+    try:        
         signal.signal(signal.SIGINT, signal_handler)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Allow address reuse to avoid issues with TIME_WAIT state
@@ -172,11 +171,12 @@ if __name__ == "__main__":
             # Bind to port 0 to let the OS select an available port
             s.bind(("127.0.0.1", 0))
             # Get the port number assigned by the OS
-            port = s.getsockname()[1]
+            start_port = s.getsockname()[1]
             register_service()
-            app.run(host="localhost", port=port)
+            app.run(host="localhost", port=start_port)
     except KeyboardInterrupt as ke:
         print("Keyboard Interrupt")
         unregister_service()
     except Exception as e:
         print(e.args[0])
+
