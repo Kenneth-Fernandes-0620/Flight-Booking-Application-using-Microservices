@@ -174,9 +174,6 @@ if __name__ == "__main__":
             start_port = s.getsockname()[1]
             register_service()
             app.run(host="localhost", port=start_port)
-    except KeyboardInterrupt as ke:
-        print("Keyboard Interrupt")
-        unregister_service()
     except Exception as e:
         print(e.args[0])
 
