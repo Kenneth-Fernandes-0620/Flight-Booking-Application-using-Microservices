@@ -78,4 +78,4 @@ def add_admin():
 
 if __name__ == "__main__":
     app.run(debug=True,port=5000)
-    mongo.db.services.insert_one({"service_name": "auth", "port" : "5000"})
+    
