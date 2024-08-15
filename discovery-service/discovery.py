@@ -73,8 +73,11 @@ def redirect_to_port(redirect_route):
     global services
     print(f"Recieved Redirect Request for service {redirect_route}")
 
-    if redirect_route[-1] == "/":
+    if redirect_route[-1] == "/":        
         redirect_route = redirect_route[:-1]
+    
+    original_redirect_route = redirect_route
+    redirect_route= redirect_route.split("/")[0]
 
     services_tuple: Tuple[list[str], int] = services.get(redirect_route, ([], 0))
     services_list = services_tuple[0]
@@ -94,7 +97,7 @@ def redirect_to_port(redirect_route):
     print(f"New Port: {services_new_port}")
 
     # Construct the new URL
-    new_url = f"http://localhost:{services_list[services_new_port]}/{redirect_route}"
+    new_url = f"http://localhost:{services_list[services_new_port]}/{original_redirect_route}"
 
     # Redirect the user to the new URL
     return redirect(new_url)
