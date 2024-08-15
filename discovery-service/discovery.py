@@ -1,11 +1,19 @@
-from flask import Flask, jsonify, request, redirect
+from flask import Flask, jsonify, request, redirect, send_from_directory
 from typing import List, Tuple, Dict
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='front-end/dist', static_url_path='/')
 
 services: Dict[str, Tuple[List[str], int]] = {}
 
+@app.route("/", methods=["GET"])
+def index():
+    print("Serving index.html")
+    return send_from_directory(app.static_folder, 'index.html')
+
+@app.route('/<path:filename>')
+def serve_static(filename):
+    return send_from_directory(app.static_folder, filename)
 
 @app.route("/register", methods=["POST"])
 def register_service():
