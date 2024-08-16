@@ -9,10 +9,21 @@ import socket
 import threading
 from werkzeug.serving import make_server
 import pika
+import json
+from bson.objectid import ObjectId as object_id
 
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Connect to MongoDB
+app.config["MONGO_URI"] = (
+    f"mongodb+srv://root:{getenv('MONGODB_PASS')}@flight-booking-microser.sjjihwa.mongodb.net/AssignmentDB?retryWrites=true&w=majority&appName=Flight-Booking-Microservice"
+)
+
+mongo = PyMongo(app)
+payment_database = mongo.db.payments
+flights_databse = mongo.db.flights
 
 SERVICE_NAME = "payment"
 start_port = 5001
@@ -33,13 +44,36 @@ def make_payment():
         return jsonify({"message": "Invalid data"}), 400
 
     try:
-        message = (
-            "Payment completed for: " + data["booking_id"] + " for " + data["email"]
+        json_message = json.dumps(
+            {
+                "booking_id": data["booking_id"],
+                "email": data["email"],
+                "passengers_no": data["passengers_no"],
+                "result": "success",
+            }
         )
-        channel.basic_publish(exchange="", routing_key="payment_queue", body=message)
-        print(f" [x] Sent {message}")
+
+        update_payment = payment_database.insert_one(
+            {
+                "booking_id": data["booking_id"],
+                "email": data["email"],
+                "status": "success",
+            }
+        )
+        update_flight = flights_databse.update_one(
+            {"_id": object_id(data["booking_id"])},
+            {"$inc": {"available_seats": -int(data["passengers_no"])}},
+        )
+
+        channel.basic_publish(
+            exchange="", routing_key="payment_queue", body=json_message
+        )
+
+        print(f" [x] Sent {json_message}")
+
         return jsonify({"message": "Payment completed"}), 200
     except Exception as e:
+        print(e.args[0])
         return jsonify({"message": "Error sending message"}), 500
 
 
