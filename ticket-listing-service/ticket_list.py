@@ -36,6 +36,7 @@ start_port = 5001
 def home():
     return jsonify({"status": "ok"}), 200
 
+
 # This function will be invoked by Vendors/Admin
 # This function adds new flights to the database
 @app.route(f"/{SERVICE_NAME}/addflight", methods=["POST"])
@@ -79,6 +80,7 @@ def add_flight():
         )  # Convert inserted_id to string
     except Exception as e:
         return jsonify({"id": -1, "error": e.args[0]}), 500
+
 
 # This function will be invoked by the front end trying to get the available flights
 # here require the booking ID of the flight as this binds the flight booking to the flight details
@@ -146,9 +148,11 @@ def register_service():
         if res.status_code == 200:
             print("Service registered successfully")
         else:
-            raise Exception("Error registering service, is discovery service running?")
+            raise Exception(
+                f"Error registering service, is {SERVICE_NAME} service running?"
+            )
     except requests.exceptions.ConnectionError:
-        raise Exception("Error registering service, is discovery service running?")
+        raise Exception(f"Error registering service, is {SERVICE_NAME} running?")
 
     except Exception as e:
         raise Exception(e.args[0])
@@ -162,8 +166,8 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 
-if __name__ == "__main__":    
-    try:        
+if __name__ == "__main__":
+    try:
         signal.signal(signal.SIGINT, signal_handler)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Allow address reuse to avoid issues with TIME_WAIT state
@@ -176,4 +180,3 @@ if __name__ == "__main__":
             app.run(host="localhost", port=start_port)
     except Exception as e:
         print(e.args[0])
-
