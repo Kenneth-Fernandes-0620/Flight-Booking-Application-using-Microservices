@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request, redirect, send_from_directory
 from typing import List, Tuple, Dict
+from flask_cors import CORS
 
 # Initialize Flask app
 app = Flask(__name__, static_folder='front-end/dist', static_url_path='/')
+CORS(app)
 
 services: Dict[str, Tuple[List[str], int]] = {}
 
@@ -68,7 +70,7 @@ def unregister_service():
 def favicon():
     return "", 204
 
-@app.route("/<path:redirect_route>")
+@app.route("/route/<path:redirect_route>")
 def redirect_to_port(redirect_route):
     global services
     print(f"Recieved Redirect Request for service {redirect_route}")
@@ -104,4 +106,4 @@ def redirect_to_port(redirect_route):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(port=5000)
