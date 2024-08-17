@@ -1,18 +1,9 @@
-import About from "../../components/About";
-import Banner from "../../components/Banner";
-import Blog from "../../components/Blog";
-import Features from "../../components/Features";
-import Hero from "../../components/Hero";
-import Plans from "../../components/Plans";
+import BookingHero from "../../components/Booking";
+
 const Booking = () => {
 	return (
 		<>
-			<Hero />
-			<Features />
-			<About />
-			<Plans />
-			<Banner />
-			<Blog />
+			<BookingHero />
 		</>
 	);
 };

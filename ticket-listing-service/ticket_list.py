@@ -8,16 +8,18 @@
 from os import getenv
 import signal
 import sys
-import time
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 import requests
 import socket
-import threading
-from werkzeug.serving import make_server
+from flask_cors import CORS
+
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Allow CORS
+CORS(app)
 
 # Connect to MongoDB
 app.config["MONGO_URI"] = (
@@ -88,8 +90,6 @@ def show_booking():
         source = request.args.get("source")
         destination = request.args.get("destination")
         date = request.args.get("date")
-        flight_class = request.args.get("class")
-        available_seats = request.args.get("available_seats")
 
         query = {}
         if source:
@@ -98,11 +98,7 @@ def show_booking():
             query["destination"] = destination
         if date:
             query["date"] = date
-        if flight_class:
-            query["class"] = flight_class
-        if available_seats:
-            query["available_seats"] = available_seats
-
+       
         flights = db.find(query)
         if flights:
             flight_list = []
@@ -113,6 +109,7 @@ def show_booking():
                     "destination": flight["destination"],
                     "date": flight["date"],
                     "class": flight["class"],
+                    "cost": flight["cost"],
                     "available_seats": flight["available_seats"],
                 }
                 flight_list.append(flight_data)
