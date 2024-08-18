@@ -3,19 +3,22 @@ from typing import List, Tuple, Dict
 from flask_cors import CORS
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='front-end/dist', static_url_path='/')
+app = Flask(__name__, static_folder="front-end/dist", static_url_path="/")
 CORS(app)
 
 services: Dict[str, Tuple[List[str], int]] = {}
 
+
 @app.route("/", methods=["GET"])
 def index():
     print("Serving index.html")
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(app.static_folder, "index.html")
 
-@app.route('/<path:filename>')
+
+@app.route("/<path:filename>")
 def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
+
 
 @app.route("/register", methods=["POST"])
 def register_service():
@@ -70,16 +73,17 @@ def unregister_service():
 def favicon():
     return "", 204
 
-@app.route("/route/<path:redirect_route>")
+
+@app.route("/route/<path:redirect_route>", methods=["GET", "POST"])
 def redirect_to_port(redirect_route):
     global services
     print(f"Recieved Redirect Request for service {redirect_route}")
 
-    if redirect_route[-1] == "/":        
+    if redirect_route[-1] == "/":
         redirect_route = redirect_route[:-1]
-    
+
     original_redirect_route = redirect_route
-    redirect_route= redirect_route.split("/")[0]
+    redirect_route = redirect_route.split("/")[0]
 
     services_tuple: Tuple[list[str], int] = services.get(redirect_route, ([], 0))
     services_list = services_tuple[0]
@@ -99,10 +103,12 @@ def redirect_to_port(redirect_route):
     print(f"New Port: {services_new_port}")
 
     # Construct the new URL
-    new_url = f"http://localhost:{services_list[services_new_port]}/{original_redirect_route}"
+    new_url = (
+        f"http://localhost:{services_list[services_new_port]}/{original_redirect_route}"
+    )
 
     # Redirect the user to the new URL
-    return redirect(new_url)
+    return redirect(new_url, code=307)
 
 
 if __name__ == "__main__":
