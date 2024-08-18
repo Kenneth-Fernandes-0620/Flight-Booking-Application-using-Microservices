@@ -3,12 +3,14 @@
 This is a flight booking system implemented using Micro-Service Architecture. It consists of several microservices including Listing Service, Booking Service, Authentication Service, Notify Service, and API Gateway.
 
 ## Features
-### Micro-Service Architecture: Implemented using 5 microservices:
+### Micro-Service Architecture: Implemented using 6 microservices:
 - [Listing Service](ticket-listing-service)
-- Booking Service
-- Authentication Service
-- Notify Service
-- API Gateway
+- [Discovery Service](discovery-service)
+- [Authentication Service](authentication-service)
+- [Notify Service](notification-service)
+- [Payment Service](payment-service)
+- [Ticket Reservation Service](ticket-reservation-service)
+
 ### RabbitMQ Message Queue Service: 
 - Utilized for sending notifications to users. 
 - The Notify Service interacts with RabbitMQ for reliable message delivery.
