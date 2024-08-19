@@ -3,7 +3,9 @@ import sys
 import pika
 import time
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host="localhost", heartbeat=600)
+)
 channel = connection.channel()
 channel.queue_declare(queue="payment_queue")
 
@@ -26,6 +28,7 @@ def signal_handler(signal, frame):
 if __name__ == "__main__":
     try:
         signal.signal(signal.SIGINT, signal_handler)
+        channel.basic_qos(prefetch_count=1)
         print(" [*] Waiting for messages. To exit press CTRL+C")
         channel.basic_consume(
             queue="payment_queue", on_message_callback=callback, auto_ack=True

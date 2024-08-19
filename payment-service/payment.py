@@ -27,7 +27,9 @@ payment_database = mongo.db.payments
 
 SERVICE_NAME = "payment"
 start_port = 5001
-connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(host="localhost", heartbeat=600)
+)
 channel = connection.channel()
 channel.queue_declare(queue="payment_queue")
 
@@ -43,14 +45,12 @@ def make_payment():
     if "booking_id" not in data or "email" not in data or "cost" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
-    print("Payment request received for booking: " + data["booking_id"] + " with email: " + data["email"] + " and cost: " + data["cost"])
-
     try:
         json_message = json.dumps(
             {
                 "booking_id": data["booking_id"],
                 "email": data["email"],
-                "cost":  data["cost"],
+                "cost": data["cost"],
                 "result": "success",
             }
         )
@@ -59,7 +59,7 @@ def make_payment():
             {
                 "booking_id": data["booking_id"],
                 "email": data["email"],
-                "cost":  data["cost"],
+                "cost": data["cost"],
                 "status": "success",
             }
         )
