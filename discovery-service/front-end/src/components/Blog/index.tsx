@@ -6,6 +6,7 @@ import postImage3 from "../../assets/images/03.jpg";
 const Blog = () => {
 	const posts = [
 		{
+			key: 1,
 			image: postImage,
 			author: "Amin Najva",
 			date: "Nov 15, 2023",
@@ -13,6 +14,7 @@ const Blog = () => {
 			description: "",
 		},
 		{
+			key: 2,
 			image: postImage2,
 			author: "Amin Najva",
 			date: "Nov 15, 2023",
@@ -20,6 +22,7 @@ const Blog = () => {
 			description: "",
 		},
 		{
+			key: 3,
 			image: postImage3,
 			author: "Amin Najva",
 			date: "Nov 15, 2023",
@@ -42,7 +45,7 @@ const Blog = () => {
 				{posts.map((post) => {
 					return (
 						<div
-							key={post.title}
+							key={post.key}
 							className="bg-white p-[10px] rounded-[10px]"
 							style={{ boxShadow: "0 0 40px 5px rgb(0 0 0 / 5%)" }}
 						>

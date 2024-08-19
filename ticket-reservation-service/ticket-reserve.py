@@ -45,28 +45,37 @@ def make_reservation():
     try:
         session.start_transaction()
 
-        flight = flights_db.find_one(
+        flight: dict = flights_db.find_one(
             {"_id": ObjectId(data["booking_id"]), "available_seats": {"$gt": 0}},
             session=session,
         )
+
 
         if not flight:
             session.abort_transaction()
             return jsonify({"message": "No seats available or flight not found"}), 400
 
+        if int(flight.get("available_seats")) < int(data["count"]):
+            session.abort_transaction()
+            return jsonify({"message": "Not enough seats available"}), 400
+
+        print("Available Seats: ", int(flight.get("available_seats")))
+        
+
         # Update the available seats in flights collection
         flights_db.update_one(
             {"_id": flight["_id"]},
-            {"$inc": {"available_seats": -data["count"]}},
+            {"$inc": {"available_seats": int(flight.get("available_seats")) - int(data["count"])}},
             session=session,
         )
+
 
         # Insert reservation into booking collection
         result = db.insert_one(
             {
                 "booking_id": data["booking_id"],
                 "email": data["email"],
-                "available_seats": flight["available_seats"] - data["count"],
+                "booked_seats": data["count"],
             },
             session=session,
         )
@@ -78,7 +87,7 @@ def make_reservation():
                 {
                     "id": str(result.inserted_id),
                     "booking_id": data["booking_id"],
-                    "available_seats": flight["available_seats"] - data["count"],
+                    "available_seats": int(flight["available_seats"]) - int(data["count"]),
                     "email": data["email"],
                 }
             ),
@@ -86,6 +95,7 @@ def make_reservation():
         )
 
     except Exception as e:
+        print(e)
         session.abort_transaction()
         return jsonify({"message": "Transaction failed", "error": str(e)}), 500
 

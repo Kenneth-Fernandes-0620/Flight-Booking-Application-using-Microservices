@@ -54,6 +54,8 @@ def login_user():
     if "username" not in data or "password" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
+    print("Login request received for user: " + data["username"] + " with password: " + data["password"])
+
     try:
         user = db.find_one({"username": data["username"], "password": data["password"]})
         if user:

@@ -1,20 +1,21 @@
 from os import getenv
 import signal
 import sys
-import time
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 import requests
 import socket
-import threading
-from werkzeug.serving import make_server
 import pika
 import json
 from bson.objectid import ObjectId as object_id
+from flask_cors import CORS
 
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Allow CORS
+CORS(app)
 
 # Connect to MongoDB
 app.config["MONGO_URI"] = (
@@ -23,7 +24,6 @@ app.config["MONGO_URI"] = (
 
 mongo = PyMongo(app)
 payment_database = mongo.db.payments
-flights_databse = mongo.db.flights
 
 SERVICE_NAME = "payment"
 start_port = 5001
@@ -40,29 +40,28 @@ def home():
 @app.route(f"/{SERVICE_NAME}/makepayment", methods=["POST"])
 def make_payment():
     data = request.json
-    if "booking_id" not in data or "email" not in data:
+    if "booking_id" not in data or "email" not in data or "cost" not in data:
         return jsonify({"message": "Invalid data"}), 400
+
+    print("Payment request received for booking: " + data["booking_id"] + " with email: " + data["email"] + " and cost: " + data["cost"])
 
     try:
         json_message = json.dumps(
             {
                 "booking_id": data["booking_id"],
                 "email": data["email"],
-                "passengers_no": data["passengers_no"],
+                "cost":  data["cost"],
                 "result": "success",
             }
         )
 
-        update_payment = payment_database.insert_one(
+        payment_database.insert_one(
             {
                 "booking_id": data["booking_id"],
                 "email": data["email"],
+                "cost":  data["cost"],
                 "status": "success",
             }
-        )
-        update_flight = flights_databse.update_one(
-            {"_id": object_id(data["booking_id"])},
-            {"$inc": {"available_seats": -int(data["passengers_no"])}},
         )
 
         channel.basic_publish(

@@ -4,11 +4,11 @@ import Dropdown, { DropdownType } from "./dropdown";
 
 // TODO: Add Price
 type ReponseObject = {
+	id: string;
 	available_seats: number;
 	class: string;
 	date: string;
 	destination: string;
-	id: string;
 	source: string;
 	cost: number
 };
@@ -186,7 +186,7 @@ const BookingHero = () => {
 												<span className="text-black">₹{booking.cost}</span>
 											</div>
 											<button className="bg-blue-400 border border-black rounded-full text-gray-900 px-6 py-2 font-semibold hover:bg-gray-700 hover:text-white"
-												onClick={() => navigate("/reserve")}
+												onClick={() => navigate("/reserve", { state: { booking: { ...booking, count: amount, booking_id: booking.id } } })}
 											>
 												Book Now
 											</button>
