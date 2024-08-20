@@ -51,9 +51,9 @@
 Clone the project
 
 ```bash
-  git clone [https://link-to-project](https://github.com/Kenneth-Fernandes-0620/Flight-Booking-Application-using-Microservices.git)
+  git clone https://github.com/Kenneth-Fernandes-0620/Flight-Booking-Application-using-Microservices.git
 ```
-Start compose
+Start docker compose
 
 ```bash
   docker-compose up --build
