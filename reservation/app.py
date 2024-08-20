@@ -48,7 +48,6 @@ def make_reservation():
             session=session,
         )
 
-
         if not flight:
             session.abort_transaction()
             return jsonify({"message": "No seats available or flight not found"}), 400
@@ -58,7 +57,6 @@ def make_reservation():
             return jsonify({"message": "Not enough seats available"}), 400
 
         print("Available Seats: ", int(flight.get("available_seats")))
-        
 
         # Update the available seats in flights collection
         flights_db.update_one(
@@ -66,7 +64,6 @@ def make_reservation():
             {"$inc": {"available_seats": -int(data["count"])}},
             session=session,
         )
-
 
         # Insert reservation into booking collection
         result = db.insert_one(
@@ -85,7 +82,8 @@ def make_reservation():
                 {
                     "id": str(result.inserted_id),
                     "booking_id": data["booking_id"],
-                    "available_seats": int(flight["available_seats"]) - int(data["count"]),
+                    "available_seats": int(flight["available_seats"])
+                    - int(data["count"]),
                     "email": data["email"],
                 }
             ),

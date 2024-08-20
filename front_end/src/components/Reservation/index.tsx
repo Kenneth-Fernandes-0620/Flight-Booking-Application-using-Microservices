@@ -43,6 +43,7 @@ const ReservationHero = () => {
 		if (data == null || data.booking == null || data.booking.booking_id == null || data.booking.count == null) {
 			setError({ error: 'Something went Wrong, Please try again', shouldRedirect: true, shouldPersist: true });
 		} else {
+		} else {
 			console.log(data.booking);
 		}
 	}, []);
@@ -67,7 +68,15 @@ const ReservationHero = () => {
 
 	const signUp = async () => {
 		let info_temp = ['> Validating Credentials for Sign Up...'];
+	const signUp = async () => {
+		let info_temp = ['> Validating Credentials for Sign Up...'];
 		if (!validate(email, password, repeatPassword)) {
+			setError({ error: 'Please fill in all the fields correctly', shouldRedirect: false, shouldPersist: false });
+			return;
+		}
+
+		if (password !== repeatPassword) {
+			setError({ error: 'Passwords do not match', shouldRedirect: false, shouldPersist: false });
 			setError({ error: 'Please fill in all the fields correctly', shouldRedirect: false, shouldPersist: false });
 			return;
 		}
@@ -111,12 +120,16 @@ const ReservationHero = () => {
 
 	const login = async () => {
 		let info_temp = ['> Checking your credentials in our database...'];
+	const login = async () => {
+		let info_temp = ['> Checking your credentials in our database...'];
 		if (!validate(email, password, repeatPassword)) {
 			setError({ error: 'Please fill in all the fields', shouldRedirect: false, shouldPersist: false });
 			return;
 		}
 
+
 		setInfo([...info_temp]);
+
 
 		try {
 			const loginResponse = await fetch('http://localhost:9000/route/authentication/login', {
@@ -129,14 +142,21 @@ const ReservationHero = () => {
 					password: password
 				})
 			});
+			});
 
 			if (loginResponse.status !== 200) {
 				info_temp.push('> Invalid Credentials... Try again');
 				setInfo([...info_temp]);
 				const errorData = await loginResponse.json();
 				throw new Error(errorData.message || 'Invalid Credentials');
+				info_temp.push('> Invalid Credentials... Try again');
+				setInfo([...info_temp]);
+				const errorData = await loginResponse.json();
+				throw new Error(errorData.message || 'Invalid Credentials');
 			}
 
+			info_temp.push('> Login Successful');
+			setInfo([...info_temp]);
 			info_temp.push('> Login Successful');
 			setInfo([...info_temp]);
 
@@ -274,6 +294,7 @@ const ReservationHero = () => {
 			}
 
 			info_temp.push('> Payment Successful... Please Check Inbox for Confirmation');
+			setInfo([...info_temp]);
 			setInfo([...info_temp]);
 			// You can proceed to payment or further actions here based on reservationData
 
