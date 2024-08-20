@@ -1,7 +1,7 @@
 
 # LuxuryAER
 
-“Luxuryaer” is a microservice based application for booking flights.
+**LuxuryAER** is a microservice based application for booking flights.
 
 ## Involves 6 microservices, namely:
 - Discovery Service
@@ -46,21 +46,41 @@
 - Facilitates direct user interaction with the system, enabling access to modules such as booking, reservation, and authentication.
 - Designed with minimal dependency on other services to enhance user experience and system efficiency.
 
+## Run Locally
+
+Clone the project
+
+```bash
+  git clone [https://link-to-project](https://github.com/Kenneth-Fernandes-0620/Flight-Booking-Application-using-Microservices.git)
+```
+Start compose
+
+```bash
+  docker-compose up --build
+```
+
+
 ## Screenshots
 ### Load Balancing & Discovery
-![Fig: Discovery service and round robin load balancing](front_end/src/assets/images/readme_images/1.png)
+<img src="front_end/src/assets/images/readme_images/1.png" alt="Discovery service and round robin load balancing" width="1024"> *Fig: Discovery service and round robin load balancing*
 ### Authentication 
-![Fig: Authenticates the credentials of the users. Login & Signup](front_end/src/assets/images/readme_images/2a.png)
-![Fig: Authenticates the credentials of the users. Login & Signup](front_end/src/assets/images/readme_images/2b.png)
+![Fig: Authenticates the credentials of the users. Login & Signup](front_end/src/assets/images/readme_images/2a.png) *Fig: Authenticates the credentials of the users. (Successful)*
+![Fig: Authenticates the credentials of the users. Login & Signup](front_end/src/assets/images/readme_images/2b.png) *Fig: Authenticates the credentials of the users. (Unsuccessful)*
 ### Listing 
-![Fig: List of flights available based on the filters](front_end/src/assets/images/readme_images/3a.png)
-![Fig: List of flights available based on the filters](front_end/src/assets/images/readme_images/3b.png)
+![Fig: List of flights available based on the filters](front_end/src/assets/images/readme_images/3a.png) *Fig: Listing page*
+![Fig: List of flights available based on the filters](front_end/src/assets/images/readme_images/3b.png) *Fig: List of flights available based on the filters*
 ### Ticket Reservation
-![Fig: Booking database](front_end/src/assets/images/readme_images/4a.png)
-![Fig: Payments database](front_end/src/assets/images/readme_images/4b.png)
+<img src="front_end/src/assets/images/readme_images/4a.png" alt="Booking database" width="1024" >*Fig: Booking database*
+<img src="front_end/src/assets/images/readme_images/4b.png" alt="Payments database" width="1024"> *Fig: Payments database*
 ### Payment & Notify
-![Fig: Once the payment is successful, using RabbitMQ, message is pushed and pulled by notify service.](front_end/src/assets/images/readme_images/5a.png)
-![Fig: Once the payment is successful, using RabbitMQ, message is pushed and pulled by notify service.](front_end/src/assets/images/readme_images/5b.png)
+![Fig: Once the payment is successful, using RabbitMQ, message is pushed and pulled by notify service.](front_end/src/assets/images/readme_images/5a.png) *Fig: Once the payment is successful, using RabbitMQ, message is pushed and pulled by notify service.*
+![Fig: Once the payment is successful, using RabbitMQ, message is pushed and pulled by notify service.](front_end/src/assets/images/readme_images/5b.png) *Fig: RabbitMQ.*
 ### Deployment
-![Fig: Deployed on EC2 instance](front_end/src/assets/images/readme_images/6a.png)
-![Fig: Deployed on EC2 instance](front_end/src/assets/images/readme_images/6b.png)
+![Fig: Deployed on EC2 instance](front_end/src/assets/images/readme_images/6a.png) *Fig: Deployed on EC2 instance*
+![Fig: Deployed on EC2 instance](front_end/src/assets/images/readme_images/6b.png) *Fig: Docker running on EC2 instance*
+
+## Authors
+
+- [@Kenneth-Fernandes-0620](https://github.com/Kenneth-Fernandes-0620)
+
+- [@Pearl-Dsilva](https://github.com/Pearl-Dsilva)
