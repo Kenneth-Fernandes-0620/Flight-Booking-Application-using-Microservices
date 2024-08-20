@@ -1,0 +1,12 @@
+# Exclude specific files
+file.txt
+secret.key
+
+# Exclude directories
+node_modules/
+dist/
+
+# Exclude all files with a specific extension
+*.log
+*.tmp
+package-lock.json

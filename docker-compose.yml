@@ -1,0 +1,83 @@
+services:
+  frontend:
+    build:
+      context: ./front_end
+    ports:
+      - "3000:3000"
+    depends_on:
+      - discovery
+
+  listing:
+    build:
+      context: ./listing
+    ports:
+      - "9002:9002"
+    depends_on:
+      - discovery
+    environment:
+      MONGODB_PASS: ${MONGODB_PASS}
+
+  reservation:
+    build:
+      context: ./reservation
+    ports:
+      - "9003:9003"
+    depends_on:
+      - discovery
+      - authentication
+      - listing
+    environment:
+      MONGODB_PASS: ${MONGODB_PASS}      
+  
+  authentication:
+    build:
+      context: ./authentication
+    ports:
+      - "9004:9004"
+    depends_on:
+      - discovery  
+    environment:
+      MONGODB_PASS: ${MONGODB_PASS}
+
+  payment:
+    build:
+      context: ./payment
+    ports:
+      - "9005:9005"
+    depends_on:
+      - discovery
+      - rabbitmq
+      
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      MONGODB_PASS: ${MONGODB_PASS}
+
+  notify:
+    build:
+      context: ./notify
+    depends_on:
+      - rabbitmq  
+
+  discovery:
+    build:
+      context: ./discovery
+    ports:
+      - "9000:9000"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"    # RabbitMQ default port
+      - "15672:15672"  # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+          - rabbitmq_data:/var/lib/rabbitmq      
+
+secrets:
+  MONGODB_PASS:
+    file: ./secrets.env
+
+volumes:
+  rabbitmq_data:
