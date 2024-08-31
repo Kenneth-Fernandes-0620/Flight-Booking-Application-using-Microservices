@@ -71,6 +71,7 @@ def make_payment():
                 "result": "success",
             }
         )
+        print("got details"+json_message)
 
         payment_result = payment_database.insert_one(
             {
@@ -80,6 +81,7 @@ def make_payment():
                 "status": "success",
             }
         )
+        print("payment result"+str(payment_result.inserted_id))
 
         channel.basic_publish(
             exchange="", routing_key="payment_queue", body=json_message
