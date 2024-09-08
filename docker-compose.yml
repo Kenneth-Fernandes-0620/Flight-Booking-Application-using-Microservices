@@ -90,19 +90,6 @@ services:
       - internal-network
       - bridge-network
 
-  rabbitmq_test:
-    container_name: rabbitmq_test
-    build:
-      context: ./rabbitmq_test
-    depends_on:
-      - rabbitmq
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      PYTHONUNBUFFERED: 1
-    networks:
-      - internal-network
-      - bridge-network
-
   notify:
     container_name: notification
     build:
