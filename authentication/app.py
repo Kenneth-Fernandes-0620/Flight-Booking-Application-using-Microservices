@@ -14,9 +14,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Connect to MongoDB
-app.config["MONGO_URI"] = (
-    f"mongodb+srv://root:{getenv('MONGODB_PASS')}@flight-booking-microser.sjjihwa.mongodb.net/AssignmentDB?retryWrites=true&w=majority&appName=Flight-Booking-Microservice"
-)
+app.config["MONGO_URI"] = getenv("MONGODB")
 
 # Initialize PyMongo to work with MongoDB
 mongo = PyMongo(app)
@@ -24,6 +22,17 @@ db = mongo.db.users
 
 SERVICE_NAME = "authentication"
 start_port = 9004
+
+
+@app.route(f"/")
+def ok():
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route(f"/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
 
 @app.route(f"/{SERVICE_NAME}/")
 def home():
@@ -53,7 +62,12 @@ def login_user():
     if "username" not in data or "password" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
-    print("Login request received for user: " + data["username"] + " with password: " + data["password"])
+    print(
+        "Login request received for user: "
+        + data["username"]
+        + " with password: "
+        + data["password"]
+    )
 
     try:
         user = db.find_one({"username": data["username"], "password": data["password"]})
@@ -119,11 +133,9 @@ def register_service():
         if res.status_code == 200:
             print("Service registered successfully")
         else:
-            raise Exception(
-                f"Error registering service, is {SERVICE_NAME} service running?"
-            )
+            raise Exception(f"Error registering service, is Discovery service running?")
     except requests.exceptions.ConnectionError:
-        raise Exception(f"Error registering service, is {SERVICE_NAME} running?")
+        raise Exception(f"Error registering service, is Discovery running?")
 
     except Exception as e:
         raise Exception(e.args[0])

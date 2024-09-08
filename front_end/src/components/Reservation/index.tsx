@@ -16,8 +16,6 @@ const validate = (email: string, password: string, repeatPassword: string): bool
 	return true;
 }
 
-
-
 const ReservationHero = () => {
 	const [error, setError] = useState<ErrorObject | null>(null);
 	const [timeRemaining, setTimeRemaining] = useState<number>(10);
@@ -93,7 +91,9 @@ const ReservationHero = () => {
 				})
 			});
 
+
 			if (signUpResponse.status !== 200) {
+				console.error(signUpResponse)
 				info_temp.push('> Sign Up Failed... Try again');
 				setInfo([...info_temp]);
 				const errorData = await signUpResponse.json();
@@ -210,7 +210,7 @@ const ReservationHero = () => {
 			}
 
 			const paymentResult = await paymentResponse.json();
-			setPaymentId(paymentResult.id);
+			setPaymentId(paymentResult.payment_id);
 
 			info_temp.push('> Payment Successful... Please Check Inbox for Confirmation');
 			setInfo([...info_temp]);
@@ -295,6 +295,8 @@ const ReservationHero = () => {
 	};
 
 	async function cancel() {
+		console.log('Cancelling Reservation');
+		console.log(booking_id + " : " + payment_id + " : " + data.booking.count);
 		fetch('http://localhost:9000/route/reservation/cancelreservation', {
 			method: 'POST',
 			headers: {
@@ -311,8 +313,6 @@ const ReservationHero = () => {
 
 	}
 
-
-	console.log("update");
 
 	return (
 		<div className="hero z-[1] w-full h-[100vh] grid place-items-center bg-[#141b2b] relative">

@@ -74,7 +74,6 @@ const BookingHero = () => {
 				setFilterSearchText('No Flights Available');
 			}
 			setResults(data);
-			console.log(data);
 			setSources(Array.from(tempSources));
 			setDestinations(Array.from(tempDestinations));
 		}).catch((error) => {

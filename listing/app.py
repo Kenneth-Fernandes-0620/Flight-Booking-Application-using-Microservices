@@ -21,9 +21,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Connect to MongoDB
-app.config["MONGO_URI"] = (
-    f"mongodb+srv://root:{getenv('MONGODB_PASS')}@flight-booking-microser.sjjihwa.mongodb.net/AssignmentDB?retryWrites=true&w=majority&appName=Flight-Booking-Microservice"
-)
+app.config["MONGO_URI"] = getenv("MONGODB")
 
 # Initialize PyMongo to work with MongoDB
 mongo = PyMongo(app)
@@ -32,13 +30,16 @@ db = mongo.db.flights
 SERVICE_NAME = "listing"
 start_port = 9002
 
+
 @app.route(f"/")
 def ok():
     return jsonify({"status": "ok"}), 200
 
+
 @app.route(f"/health")
 def health():
     return jsonify({"status": "ok"}), 200
+
 
 @app.route(f"/{SERVICE_NAME}/")
 def home():
@@ -106,7 +107,7 @@ def show_booking():
             query["destination"] = destination
         if date:
             query["date"] = date
-       
+
         flights = db.find(query)
         if flights:
             flight_list = []
@@ -173,6 +174,6 @@ if __name__ == "__main__":
     try:
         signal.signal(signal.SIGINT, signal_handler)
         register_service()
-        app.run(host='0.0.0.0', port=start_port)
+        app.run(host="0.0.0.0", port=start_port)
     except Exception as e:
         print(e.args[0])

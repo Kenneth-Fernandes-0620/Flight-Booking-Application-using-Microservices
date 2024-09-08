@@ -1,13 +1,36 @@
 services:
+  mongodb1:
+    image: mongo:latest
+    container_name: mongodb1
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all" ]
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - internal-network
+
+  mongodb2:
+    image: mongo:latest
+    container_name: mongodb2
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all" ]
+    volumes:
+      - mongodb_data:/data/db2
+    networks:
+      - internal-network
+
   frontend:
+    container_name: frontend
     build:
       context: ./front_end
     ports:
       - "3000:3000"
     depends_on:
       - discovery
+    networks:
+      - internal-network
+      - bridge-network
 
   listing:
+    container_name: listing
     build:
       context: ./listing
     ports:
@@ -15,9 +38,13 @@ services:
     depends_on:
       - discovery
     environment:
-      MONGODB_PASS: ${MONGODB_PASS}
+      MONGODB: "mongodb://mongodb1:27017,mongodb2:27017/AssignmentDB?replicaSet=rs0"
+    networks:
+      - internal-network
+      - bridge-network
 
   reservation:
+    container_name: reservation
     build:
       context: ./reservation
     ports:
@@ -27,19 +54,27 @@ services:
       - authentication
       - listing
     environment:
-      MONGODB_PASS: ${MONGODB_PASS}      
-  
+      MONGODB: "mongodb://mongodb1:27017,mongodb2:27017/AssignmentDB?replicaSet=rs0"
+    networks:
+      - internal-network
+      - bridge-network
+
   authentication:
+    container_name: authentication
     build:
       context: ./authentication
     ports:
       - "9004:9004"
     depends_on:
-      - discovery  
+      - discovery
     environment:
-      MONGODB_PASS: ${MONGODB_PASS}
+      MONGODB: "mongodb://mongodb1:27017,mongodb2:27017/AssignmentDB?replicaSet=rs0"
+    networks:
+      - internal-network
+      - bridge-network
 
   payment:
+    container_name: payment
     build:
       context: ./payment
     ports:
@@ -47,33 +82,61 @@ services:
     depends_on:
       - discovery
       - rabbitmq
-      
     environment:
       RABBITMQ_HOST: rabbitmq
-      MONGODB_PASS: ${MONGODB_PASS}
+      MONGODB: "mongodb://mongodb1:27017,mongodb2:27017/AssignmentDB?replicaSet=rs0"
+      PYTHONUNBUFFERED: 1
+    networks:
+      - internal-network
+      - bridge-network
+
+  rabbitmq_test:
+    container_name: rabbitmq_test
+    build:
+      context: ./rabbitmq_test
+    depends_on:
+      - rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      PYTHONUNBUFFERED: 1
+    networks:
+      - internal-network
+      - bridge-network
 
   notify:
+    container_name: notification
     build:
       context: ./notify
     depends_on:
-      - rabbitmq  
+      - rabbitmq
+    networks:
+      - internal-network
 
   discovery:
+    container_name: discovery
     build:
       context: ./discovery
     ports:
       - "9000:9000"
+    networks:
+      - internal-network
+      - bridge-network
 
   rabbitmq:
+    container_name: rabbitMQ
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"    # RabbitMQ default port
-      - "15672:15672"  # Management UI port
+      - "5672:5672" # RabbitMQ default port
+      - "15672:15672" # Management UI port
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_HEARTBEAT: 60
     volumes:
-          - rabbitmq_data:/var/lib/rabbitmq      
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - internal-network
+      - bridge-network
 
 secrets:
   MONGODB_PASS:
@@ -81,3 +144,12 @@ secrets:
 
 volumes:
   rabbitmq_data:
+  mongodb_data:
+
+
+networks:
+  internal-network:
+    internal: true
+
+  bridge-network:
+    external: true

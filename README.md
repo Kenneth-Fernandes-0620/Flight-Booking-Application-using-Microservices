@@ -48,17 +48,40 @@
 
 ## Run Locally
 
-Clone the project
-
+### Clone the project
 ```bash
-  git clone https://github.com/Kenneth-Fernandes-0620/Flight-Booking-Application-using-Microservices.git
-```
-Start docker compose
-
-```bash
-  docker-compose up --build
+git clone https://github.com/Kenneth-Fernandes-0620/Flight-Booking-Application-using-Microservices.git
 ```
 
+### Start docker compose
+```bash
+docker-compose up --build
+```
+
+## Initialize the Replicas
+### Connect to the Master Container
+```bash
+docker exec -it mongodb1 mongosh --port 27017
+```
+
+### Initialize the Replica Set
+```bash
+rs.initiate({ _id: "rs0", members: [ { _id: 0, host: "mongo1:27017" }, { _id: 1, host: "mongo2:27017" }] });
+```
+**Note: This project contains 2 replicas, but you can always add more.**
+
+## Using Sample Flight Data
+Once all the services start, the database will be empty, to populate this database with sample data, we can do the following.
+
+### Copy Data File to Database Volume
+```bash
+docker cp "./sample data/db.dump" mongodb1:/data/db.dump
+```
+
+### Load the Sample Data
+```bash
+docker-compose exec -it mongodb1 sh -c "mongorestore --archive < /data/db.dump"
+```
 
 ## Screenshots
 ### Load Balancing & Discovery

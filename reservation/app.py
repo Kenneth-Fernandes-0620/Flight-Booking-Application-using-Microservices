@@ -13,11 +13,8 @@ app = Flask(__name__)
 
 CORS(app)
 
-
 # Connect to MongoDB
-app.config["MONGO_URI"] = (
-    f"mongodb+srv://root:{getenv('MONGODB_PASS')}@flight-booking-microser.sjjihwa.mongodb.net/AssignmentDB?retryWrites=true&w=majority&appName=Flight-Booking-Microservice"
-)
+app.config["MONGO_URI"] = getenv("MONGODB")
 
 # Initialize PyMongo to work with MongoDB
 mongo = PyMongo(app)
@@ -27,6 +24,17 @@ flights_db = mongo.db.flights
 
 SERVICE_NAME = "reservation"
 start_port = 9003
+
+
+@app.route(f"/")
+def ok():
+    return jsonify({"status": "ok"}), 200
+
+
+@app.route(f"/health")
+def health():
+    return jsonify({"status": "ok"}), 200
+
 
 @app.route(f"/{SERVICE_NAME}/")
 def home():
@@ -122,8 +130,6 @@ def cancel_reservation():
             session.abort_transaction()
             return jsonify({"message": "Not enough seats available"}), 400
 
-        print("Available Seats: ", int(flight.get("available_seats")))
-
         # Update the available seats in flights collection
         flights_db.update_one(
             {"_id": flight["_id"]},
@@ -158,10 +164,6 @@ def cancel_reservation():
         session.end_session()
 
 
-
-
-
-
 def unregister_service():
     try:
         res = requests.post(
@@ -185,9 +187,7 @@ def register_service():
         if res.status_code == 200:
             print("Service registered successfully")
         else:
-            raise Exception(
-                f"Error registering service, is {SERVICE_NAME} service running?"
-            )
+            raise Exception(f"Error registering service, is discovery service running?")
     except requests.exceptions.ConnectionError:
         raise Exception(f"Error registering service, is discovery running?")
 
@@ -207,6 +207,6 @@ if __name__ == "__main__":
     try:
         signal.signal(signal.SIGINT, signal_handler)
         register_service()
-        app.run(host='0.0.0.0', port=start_port)
+        app.run(host="0.0.0.0", port=start_port)
     except Exception as e:
         print(e.args[0])

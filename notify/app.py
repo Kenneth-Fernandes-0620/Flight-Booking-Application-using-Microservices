@@ -7,20 +7,22 @@ import time
 def connect_to_rabbitmq():
     while True:
         try:
-            connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
+            connection = pika.BlockingConnection(
+                pika.ConnectionParameters(host="rabbitmq", heartbeat=60)
+            )
             return connection
         except pika.exceptions.AMQPConnectionError:
             print("RabbitMQ is not available. Retrying...")
             time.sleep(5)
 
 
-
-
 connection = connect_to_rabbitmq()
 channel = connection.channel()
-channel.queue_declare(queue="payment_queue")
+channel.queue_declare(queue="payment_queue", durable=True)
+channel.basic_qos(prefetch_count=100)
 
 print("Connected to RabbitMQ")
+
 
 def notify_user():
     time.sleep(10)
@@ -29,6 +31,7 @@ def notify_user():
 def callback(ch, method, properties, body):
     notify_user()
     print(f"Email sent: {body.decode()}")
+    ch.basic_ack(delivery_tag=method.delivery_tag)
 
 
 def signal_handler(signal, frame):
