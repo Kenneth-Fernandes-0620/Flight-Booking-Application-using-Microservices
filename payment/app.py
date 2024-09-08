@@ -1,6 +1,7 @@
 from os import getenv
 import signal
 import sys
+from threading import Thread
 from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 import requests
@@ -30,6 +31,21 @@ start_port = 9005
 # connection = pika.BlockingConnection(pika.ConnectionParameters(host=rabbitmq_host))
 # channel = connection.channel()
 # channel.queue_declare(queue="payment_queue")
+
+
+def ping_rabbitmq():
+    """Sends a ping message to RabbitMQ every 30 seconds."""
+    while True:
+        try:
+            message = json.dumps({"type": "ping"})
+            channel.basic_publish(
+                exchange="", routing_key="payment_queue", body=message
+            )
+            print(f"Sent ping message to RabbitMQ")
+            time.sleep(30)
+        except Exception as e:
+            print(f"Error sending ping message: {e}")
+            time.sleep(5)  # Retry after error with a longer delay
 
 
 def connect_to_rabbitmq():
@@ -67,6 +83,7 @@ def connect_to_rabbitmq():
 connection = connect_to_rabbitmq()
 channel = connection.channel()
 channel.queue_declare(queue="payment_queue", durable=True)
+channel.queue_declare(queue="ping", durable=True)
 
 print("Connected to RabbitMQ")
 
@@ -185,6 +202,11 @@ if __name__ == "__main__":
     try:
         signal.signal(signal.SIGINT, signal_handler)
         register_service()
+
+        ping_thread = Thread(target=ping_rabbitmq)
+        # Start the ping thread
+        ping_thread.start()
+
         app.run(host="0.0.0.0", port=start_port)
     except Exception as e:
         print(e.args[0])

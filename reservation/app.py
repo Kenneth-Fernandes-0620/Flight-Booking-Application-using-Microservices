@@ -113,12 +113,14 @@ def cancel_reservation():
     if "booking_id" not in data or "payment_id" not in data or "count" not in data:
         return jsonify({"message": "Invalid data"}), 400
 
+    print(data)
+
     session = mongo.cx.start_session()
     try:
         session.start_transaction()
 
         flight: dict = flights_db.find_one(
-            {"_id": ObjectId(data["booking_id"]), "available_seats": {"$gt": 0}},
+            {"_id": ObjectId(data["booking_id"])},
             session=session,
         )
 
