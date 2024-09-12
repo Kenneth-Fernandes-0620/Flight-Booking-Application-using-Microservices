@@ -38,9 +38,7 @@ def ping_rabbitmq():
     while True:
         try:
             message = json.dumps({"type": "ping"})
-            channel.basic_publish(
-                exchange="", routing_key="payment_queue", body=message
-            )
+            channel.basic_publish(exchange="", routing_key="ping", body=message)
             print(f"Sent ping message to RabbitMQ")
             time.sleep(30)
         except Exception as e:

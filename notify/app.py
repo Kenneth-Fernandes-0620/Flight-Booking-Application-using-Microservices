@@ -31,7 +31,11 @@ def notify_user():
 def callback(ch, method, properties, body):
     notify_user()
     print(f"Email sent: {body.decode()}")
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+    # ch.basic_ack(delivery_tag=method.delivery_tag)
+
+
+def ok(ch, method, properties, body):
+    pass
 
 
 def signal_handler(signal, frame):
@@ -47,6 +51,7 @@ if __name__ == "__main__":
         channel.basic_consume(
             queue="payment_queue", on_message_callback=callback, auto_ack=True
         )
+        channel.basic_consume(queue="ping", on_message_callback=ok, auto_ack=True)
         channel.start_consuming()
 
     except Exception as e:
